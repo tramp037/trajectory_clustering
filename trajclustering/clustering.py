@@ -39,7 +39,9 @@ class GROMOS(AnalysisBase):
         # OR probably 
         self.matrix = np.zeros((self.atomgroup.universe.trajectory.n_frames, 
                            self.atomgroup.universe.trajectory.n_frames))
-        self.cluster_groups = {} # not sure if this will be a dict or not but just for now 
+        self.cluster_groups = {
+            0:np.array([])
+        } # not sure if this will be a dict or not but just for now 
 
     def _single_frame(self):
         for ts in self.reference.universe.trajectory:
@@ -55,8 +57,20 @@ class GROMOS(AnalysisBase):
     
     def _neighbor_count(self, structure_pool=None):
         '''
-        Helper function that finds the frames with the largest number of neighbors within specified cutoff.
-        Will update documentation later 
+        Helper function that assigns frames to clusters. 
+
+        Function finds all neighbors for each frame within a certain distance cutoff. The largest group is assigned to
+        GROMOS.cluster_groups (dict) and removed from the pool of available structures. This function is ran recursively 
+        until no more clusters are found.
+
+        Parameters 
+        -----------
+        structure_pool : optional, None, np.ndarray 
+            Indices of frames that are in the available structure pool
+        
+        Returns
+        -----------
+        structure_pool : np.ndarray
         '''
         if structure_pool is None:
             structure_pool = np.arange(0, self.atomgroup.universe.trajectory.n_frames, 1) # create pool of initial frame indices
@@ -65,11 +79,11 @@ class GROMOS(AnalysisBase):
         for i, row in enumerate(self.matrix):
             if i not in structure_pool:
                 continue
-            row_i = np.array([row[i] for i in range(len(row)) if i in structure_pool])
-            n_neighbors = len(row_i[row_i < self.cutoff])
+            row_ = np.array([row[i] for i in range(len(row)) if i in structure_pool])
+            n_neighbors = len(row_[row_ < self.cutoff])
             if n_neighbors > max_neighbors:
                 max_neighbors = n_neighbors
-                neighbors = np.where(row_i[(row_i < self.cutoff)])
+                neighbors = np.where(row_[(row_ < self.cutoff)])
         cluster_members = neighbors[:]
         if len(self.cluster_groups.keys()) == 0:
             cluster_index = 0
