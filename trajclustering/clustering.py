@@ -19,7 +19,6 @@ class GROMOS(AnalysisBase):
         pass
 
     def _single_frame(self):
-        # called after the trajectory is moved onto each new frame.
         pass
     
     def _conclude(self):
@@ -32,7 +31,7 @@ class GROMOS(AnalysisBase):
     def _neighbor_count(self):
         pass
     
-    def _compute_rmsd(self, frame_atomgroup, ref_atomgroup):
+    def _compute_rmsd(self, atomgroup, ref_atomgroup):
         '''
         Helper function to compute RMSD between the current frame index and a reference.
 
@@ -40,7 +39,7 @@ class GROMOS(AnalysisBase):
 
         Parameters
         ----------
-        frame_atomgroup: AtomGroup
+        atomgroup: AtomGroup
             Atom group for current frame
         ref_atomgroup: AtomGroup
             Atom group for reference frame
@@ -50,8 +49,7 @@ class GROMOS(AnalysisBase):
         rmsd : float
 
         '''
-        # actually compute rmsd 
-        return rms.rmsd(frame_atomgroup.positions,
+        return rms.rmsd(atomgroup.positions,
                         ref_atomgroup.positions,
                         center=True,
                         superposition=True)
