@@ -9,18 +9,22 @@ def u():
     return mda.Universe(data.GRO, data.XTC)
 
 def test_gromos_init(u):
-    u.select_atoms("backbone")
+    atomgroup = u.select_atoms("backbone")
     ref = u.select_atoms("backbone")
+    cutoff = 2
 
-    gromos = clustering.GROMOS(u.atoms, ref)
-    assert gromos.atomgroup == u.atoms
+    gromos = clustering.GROMOS(atomgroup, ref, cutoff)
+    assert gromos.atomgroup == atomgroup
     assert gromos.reference == ref
+    assert gromos.cutoff == cutoff
 
 def test_gromos_prepare(u):
     u.select_atoms("backbone")
+    atomgroup = u.select_atoms("backbone")
     ref = u.select_atoms("backbone")
+    cutoff = 2
 
-    gromos = clustering.GROMOS(u.atoms, ref)
+    gromos = clustering.GROMOS(atomgroup, ref, cutoff)
     gromos._prepare()
     assert gromos.matrix.shape == (u.trajectory.n_frames, u.trajectory.n_frames)
     assert gromos.matrix.sum() == 0
