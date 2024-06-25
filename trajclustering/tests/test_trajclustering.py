@@ -91,3 +91,19 @@ def test_gromos_run(topology, trajectory):
     assert cluster.matrix[-1, -1] < 0.0001
     # check symmetry of the matrix
     assert np.allclose(cluster.matrix, cluster.matrix.T, rtol=0.001, atol=0.001)
+
+def test_structure_pool(u_gmx):
+    u = u_gmx
+    ref = u_gmx
+    u_atomgroup = u.select_atoms('backbone')
+    ref_atomgroup = ref.select_atoms('backbone')
+    cluster = GROMOS(u_atomgroup, ref_atomgroup, cutoff=2)
+    cluster._prepare()
+    cluster._single_frame()
+    cluster._neighbor_count()
+    assert len(cluster.cluster_groups.keys()) == 1
+
+    cluster = GROMOS(u_atomgroup, ref_atomgroup, cutoff=1)
+    cluster._prepare()
+    cluster._single_frame()
+    assert len(cluster.cluster_groups.keys()) == 7
