@@ -17,7 +17,7 @@ class GROMOS(AnalysisBase):
         # here, probably make an array that assigns frames to a 
         # cluster 
         # OR probably 
-        matrix = np.zeros((self.atomgroup.universe.trajectory.n_frames, 
+        self.matrix = np.zeros((self.atomgroup.universe.trajectory.n_frames, 
                            self.atomgroup.universe.trajectory.n_frames))
 
     def _single_frame(self):
