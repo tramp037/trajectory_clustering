@@ -59,20 +59,23 @@ class GROMOS(AnalysisBase):
         Will update documentation later 
         '''
         if structure_pool is None:
-            structure_pool = np.arange(0, self.atomgroup.n_atoms, 1) # create pool of initial frame indices
+            structure_pool = np.arange(0, self.atomgroup.universe.trajectory.n_frames, 1) # create pool of initial frame indices
         max_neighbors = 0
         neighbors = np.array([])
         for i, row in enumerate(self.matrix):
             if i not in structure_pool:
                 continue
-            row = [row[i] for i in range(len(row)) if i in structure_pool]
-            n_neighbors = len(row[row < self.cutoff])
+            row_i = np.array([row[i] for i in range(len(row)) if i in structure_pool])
+            n_neighbors = len(row_i[row_i < self.cutoff])
             if n_neighbors > max_neighbors:
                 max_neighbors = n_neighbors
-                neighbors = np.where(row[(row < self.cutoff)])
+                neighbors = np.where(row_i[(row_i < self.cutoff)])
         cluster_members = neighbors[:]
-        cluster_index = min(list(self.cluster_groups.keys())) + 1
-        self.cluster_groups[cluster_index] = cluster_members
+        if len(self.cluster_groups.keys()) == 0:
+            cluster_index = 0
+        else:
+            cluster_index = max(list(self.cluster_groups.keys())) + 1
+        self.cluster_groups[cluster_index] = structure_pool[cluster_members]
         return np.delete(structure_pool, cluster_members)
     
     def _compute_rmsd(self, atomgroup, ref_atomgroup):
