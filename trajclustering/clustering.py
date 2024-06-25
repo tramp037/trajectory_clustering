@@ -5,10 +5,30 @@ from MDAnalysis.analysis.base import AnalysisBase
 import numpy as np
 
 class GROMOS(AnalysisBase):
-    def __init__(self, atomgroup, reference, **kwargs):
+    """
+    Class for GROMOS clustering.
+
+    Parameters
+    ----------
+    atomgroup : AtomGroup
+        First atom group
+    reference : AtomGroup
+        Second atom group
+    cutoff : float
+        Cutoff for neighbors
+
+    Returns
+    -------
+    matrix : np.ndarray
+        Matrix of frames and clusters
+
+        
+    """
+    def __init__(self, atomgroup, reference, cutoff, **kwargs):
         # sets up the self.atomgroup and self.reference variables
         self.atomgroup = atomgroup
         self.reference = reference
+        self.cutoff = cutoff
         super().__init__(atomgroup.universe.trajectory,
                          **kwargs)
 
