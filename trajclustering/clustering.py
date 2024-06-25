@@ -5,10 +5,13 @@ from MDAnalysis.analysis.base import AnalysisBase
 import numpy as np
 
 class GROMOS(AnalysisBase):
-    def __init__(self, atomgroup, **kwargs):
+    def __init__(self, atomgroup, reference, **kwargs):
+        # sets up the self.atomgroup and self.reference variables
         self.atomgroup = atomgroup
+        self.reference = reference
         super().__init__(atomgroup.universe.trajectory,
                          **kwargs)
+
     def _prepare(self):
         # called before iteration on the trajectory has begun.
         # initialize results
@@ -16,7 +19,8 @@ class GROMOS(AnalysisBase):
         # here, probably make an array that assigns frames to a 
         # cluster 
         # OR probably 
-        pass
+        self.matrix = np.zeros((self.atomgroup.universe.trajectory.n_frames, 
+                           self.atomgroup.universe.trajectory.n_frames))
 
     def _single_frame(self):
         pass
