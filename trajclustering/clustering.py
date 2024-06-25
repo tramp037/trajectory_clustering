@@ -1,5 +1,7 @@
 import MDAnalysis as mda
+from MDAnalysis.analysis import rms
 from MDAnalysis.analysis.base import AnalysisBase
+
 import numpy as np
 
 class GROMOS(AnalysisBase):
@@ -30,7 +32,27 @@ class GROMOS(AnalysisBase):
     def _neighbor_count(self):
         pass
     
-    def _compute_rmsd(self):
+    def _compute_rmsd(self, frame_atomgroup, ref_atomgroup):
+        '''
+        Helper function to compute RMSD between the current frame index and a reference.
+
+        RMSD is calculated like this:
+
+        Parameters
+        ----------
+        frame_atomgroup: AtomGroup
+            Atom group for current frame
+        ref_atomgroup: AtomGroup
+            Atom group for reference frame
+
+        Returns
+        ----------
+        rmsd : float
+
+        '''
         # actually compute rmsd 
-        pass
+        return rms.rmsd(frame_atomgroup.positions,
+                        ref_atomgroup.positions,
+                        center=True,
+                        superposition=True)
         
