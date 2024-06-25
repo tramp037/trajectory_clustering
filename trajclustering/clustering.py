@@ -21,8 +21,6 @@ class GROMOS(AnalysisBase):
     -------
     matrix : np.ndarray
         Matrix of frames and clusters
-
-        
     """
     def __init__(self, atomgroup, reference, cutoff, **kwargs):
         # sets up the self.atomgroup and self.reference variables
@@ -43,7 +41,8 @@ class GROMOS(AnalysisBase):
                            self.atomgroup.universe.trajectory.n_frames))
 
     def _single_frame(self):
-        pass
+        for ts in self.reference.universe.trajectory:
+            self.matrix[self._frame_index, ts.frame] = self._compute_rmsd(self.atomgroup, self.reference)
     
     def _conclude(self):
         # put everything together
