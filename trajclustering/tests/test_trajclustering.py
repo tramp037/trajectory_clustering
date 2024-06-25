@@ -11,6 +11,7 @@ import sys
 import MDAnalysis as mda
 import MDAnalysisTests.datafiles as data
 from MDAnalysis.analysis import rms
+import numpy as np
 
 @pytest.fixture
 def u_gmx():
@@ -51,10 +52,42 @@ def test_compute_rmsd(topology, trajectory):
     ref = mda.Universe(topology, trajectory)
     u_atomgroup = u.select_atoms('backbone')
     ref_atomgroup = ref.select_atoms('backbone')
-    cluster = GROMOS(u_atomgroup)
+    cutoff = 2
+    cluster = GROMOS(u_atomgroup, ref_atomgroup, cutoff)
     gromos_rmsd = cluster._compute_rmsd(u_atomgroup, ref_atomgroup)
     mda_rmsd = rms.rmsd(u_atomgroup.positions,
                         ref_atomgroup.positions,
                         center=True,
                         superposition=True)
     assert gromos_rmsd == pytest.approx(mda_rmsd)
+
+@pytest.mark.parametrize(
+        "topology,trajectory",
+        [
+            (
+                data.TPR,
+                data.XTC
+            ),
+            (
+                data.PSF,
+                data.DCD
+            )
+        ]
+)
+def test_gromos_run(topology, trajectory):
+    '''
+    Test trajclustering.clustering.GROMOS.run()
+    '''
+    u = mda.Universe(topology, trajectory)
+    ref = mda.Universe(topology, trajectory)
+    u_atomgroup = u.select_atoms('backbone')
+    ref_atomgroup = ref.select_atoms('backbone')
+    cutoff = 2
+    cluster = GROMOS(u_atomgroup, ref_atomgroup, cutoff)
+    cluster.run()
+    assert cluster.matrix.shape == (u.trajectory.n_frames, u.trajectory.n_frames)
+    # check that the diagonals are near zero
+    assert cluster.matrix[0, 0] < 0.0001
+    assert cluster.matrix[-1, -1] < 0.0001
+    # check symmetry of the matrix
+    assert np.allclose(cluster.matrix, cluster.matrix.T, rtol=0.001, atol=0.001)
