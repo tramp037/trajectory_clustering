@@ -50,7 +50,7 @@ def test_compute_rmsd(topology, trajectory):
     u = mda.Universe(topology, trajectory)
     ref = mda.Universe(topology, trajectory)
     u_atomgroup = u.select_atoms('backbone')
-    ref_atomgroup = u.select_atoms('backbone')
+    ref_atomgroup = ref.select_atoms('backbone')
     cluster = GROMOS(u_atomgroup)
     gromos_rmsd = cluster._compute_rmsd(u_atomgroup, ref_atomgroup)
     mda_rmsd = rms.rmsd(u_atomgroup.positions,
