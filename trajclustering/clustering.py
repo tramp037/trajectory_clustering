@@ -21,6 +21,7 @@ class GROMOS(AnalysisBase):
         # OR probably 
         self.matrix = np.zeros((self.atomgroup.universe.trajectory.n_frames, 
                            self.atomgroup.universe.trajectory.n_frames))
+        self.cluster_groups = {} # not sure if this will be a dict or not but just for now 
 
     def _single_frame(self):
         pass
@@ -32,8 +33,28 @@ class GROMOS(AnalysisBase):
     def _rmsd_to_other_frames(self):
         pass
     
-    def _neighbor_count(self):
-        pass
+    
+    def _neighbor_count(self, structure_pool=None):
+        '''
+        Helper function that finds the frames with the largest number of neighbors within specified cutoff.
+        Will update documentation later 
+        '''
+        if structure_pool is None:
+            structure_pool = np.arange(0, self.atomgroup.n_atoms, 1) # create pool of initial frame indices
+        max_neighbors = 0
+        neighbors = np.array([])
+        for i, row in enumerate(self.matrix):
+            if i not in structure_pool:
+                continue
+            row = [row[i] for i in range(len(row)) if i in structure_pool]
+            n_neighbors = len(row[row < self.cutoff])
+            if n_neighbors > max_neighbors:
+                max_neighbors = n_neighbors
+                neighbors = np.where(row[(row < self.cutoff)])
+        cluster_members = neighbors[:]
+        cluster_index = min(list(self.cluster_groups.keys())) + 1
+        self.cluster_groups[cluster_index] = cluster_members
+        return np.delete(structure_pool, cluster_members)
     
     def _compute_rmsd(self, atomgroup, ref_atomgroup):
         '''
