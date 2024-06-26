@@ -40,7 +40,6 @@ class GROMOS(AnalysisBase):
         self.matrix = np.zeros((self.atomgroup.universe.trajectory.n_frames, 
                            self.atomgroup.universe.trajectory.n_frames))
         self.cluster_groups = {
-            0:np.array([])
         } # not sure if this will be a dict or not but just for now 
 
     def _single_frame(self):
